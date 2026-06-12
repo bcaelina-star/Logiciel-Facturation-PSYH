@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #5b9bd5;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 120px;
+            margin-right: 30px;
+        }
+        .coords {
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .coords h1 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #2e4057;
+        }
+        .mentions-legales {
+            font-size: 0.8em;
+            color: #555;
+            margin-top: 10px;
+        }
+        .bloc-facture {
+            margin: 30px 0;
+        }
+        .reference {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .destinataire {
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9edf2;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .statut {
+            text-align: right;
+            margin: 20px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .statut.payee { color: green; }
+        .statut.attente { color: orange; }
+        .statut.annulee { color: red; }
+        .pied {
+            margin-top: 60px;
+            font-size: 0.7em;
+            text-align: center;
+            color: #777;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img class="logo" src="file://{{ logo_path }}" alt="Logo PsyH">
+        <div class="coords">
+            <h1>{{ mentions.cabinet }}</h1>
+            <p>
+                {{ mentions.psychologue }}<br>
+                {{ mentions.adresse }}<br>
+                {{ mentions.site }} • {{ mentions.email }} • {{ mentions.tel }}
+            </p>
+            <div class="mentions-legales">
+                ADELI : {{ mentions.adeli }} – SIRET : {{ mentions.siret }}<br>
+                {{ mentions.sirene }} – Déclaration n° {{ mentions.declaration }}<br>
+                {{ mentions.tva_note }}
+            </div>
+        </div>
+    </div>
+
+    <div class="bloc-facture">
+        <div class="reference">Facture n° {{ facture['reference'] }}</div>
+        <div>Date : {{ facture['date_emission'] }}</div>
+    </div>
+
+    <div class="destinataire">
+        <strong>Facturé à :</strong><br>
+        {{ facture['client_nom'] }}<br>
+        {% if facture['client_adresse'] %}{{ facture['client_adresse'] }}{% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Qté-heures</th>
+                <th>PRIX</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in lignes %}
+            <tr>
+                <td>{{ ligne['service'] }}</td>
+                <td>{{ ligne['quantite'] }}</td>
+                <td>{{ format_prix(ligne['prix_unitaire']) }}</td>
+                <td>{{ format_prix(ligne['total_ligne']) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">Total : {{ format_prix(total) }}</div>
+
+    <div class="statut {% if facture['statut'] == 'Payée' %}payee{% elif facture['statut'] == 'En attente' %}attente{% else %}annulee{% endif %}">
+        {{ facture['statut'] }}
+    </div>
+
+    {% if facture['note'] %}
+    <p><em>Note : {{ facture['note'] }}</em></p>
+    {% endif %}
+
+    <div class="pied">
+        Cabinet PsyH – Céline Bourbon Psychologue – 77 rue du Jardin Public, 33000 Bordeaux<br>
+        ADELI 339332694 – SIRET 82241682200036 – Inscription Sirene – Déclaration U63070283920 – TVA non applicable
+    </div>
+</body>
+</html>
