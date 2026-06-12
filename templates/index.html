@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Factures récentes</h1>
+<table>
+    <tr><th>Référence</th><th>Date</th><th>Client</th><th>Statut</th><th>Actions</th></tr>
+    {% for f in factures %}
+    <tr>
+        <td>{{ f['reference'] }}</td>
+        <td>{{ f['date_emission'] }}</td>
+        <td>{{ f['client_nom'] }}</td>
+        <td>{{ f['statut'] }}</td>
+        <td>
+            <a class="btn" href="{{ url_for('telecharger_pdf', id=f['id']) }}">PDF</a>
+            <form method="post" action="{{ url_for('supprimer_facture', id=f['id']) }}" style="display:inline">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Supprimer cette facture ?')">Supprimer</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
