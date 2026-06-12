@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Nouvelle facture</h1>
+<form method="post" id="factureForm">
+    <h2>Informations du patient</h2>
+    <p>
+        <label>Nom du client * :</label>
+        <input type="text" name="client_nom" required value="">
+    </p>
+    <p>
+        <label>Adresse :</label>
+        <input type="text" name="client_adresse" placeholder="Facultatif">
+    </p>
+    <p>
+        <label>Type de tarif * :</label>
+        <select name="client_type_tarif" id="type_tarif" onchange="mettreAJourPrix()">
+            <option value="adulte" selected>Adulte (70 €)</option>
+            <option value="etudiant">Étudiant (50 €)</option>
+        </select>
+    </p>
+
+    <h2>Prestation</h2>
+    <p>Consultation de psychologie ({{ duree }})</p>
+    <p>
+        <label>Quantité (séances) :</label>
+        <input type="number" name="quantite" id="quantite" value="1" min="1" step="1" onchange="calculerTotal()">
+    </p>
+    <p>
+        Prix unitaire : <span id="prix_unitaire_affichage">70,00 €</span>
+        <input type="hidden" name="prix_unitaire" id="prix_unitaire" value="70.00">
+    </p>
+    <p>
+        Total ligne : <span id="total_affichage">70,00 €</span>
+    </p>
+
+    <h2>Options</h2>
+    <p>
+        <label>Statut :</label>
+        <select name="statut">
+            <option value="En attente">En attente</option>
+            <option value="Payée">Payée</option>
+            <option value="Annulée">Annulée</option>
+        </select>
+    </p>
+    <p>
+        <label>Note :</label>
+        <input type="text" name="note" placeholder="ex: Séance du 12/04/2026">
+    </p>
+
+    <button type="submit" class="btn">Générer la facture PDF</button>
+</form>
+
+<script>
+const tarifs = {
+    adulte: {{ tarifs['adulte'] }},
+    etudiant: {{ tarifs['etudiant'] }}
+};
+
+function mettreAJourPrix() {
+    const type = document.getElementById('type_tarif').value;
+    const prix = tarifs[type];
+    document.getElementById('prix_unitaire').value = prix.toFixed(2);
+    document.getElementById('prix_unitaire_affichage').textContent = prix.toFixed(2).replace('.', ',') + ' €';
+    calculerTotal();
+}
+
+function calculerTotal() {
+    const prix = parseFloat(document.getElementById('prix_unitaire').value);
+    const qte = parseFloat(document.getElementById('quantite').value);
+    if (!isNaN(prix) && !isNaN(qte)) {
+        const total = (prix * qte).toFixed(2);
+        document.getElementById('total_affichage').textContent = total.replace('.', ',') + ' €';
+    }
+}
+
+window.onload = mettreAJourPrix;
+</script>
+{% endblock %}
